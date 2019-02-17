@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import Login from './componentes/Login'
+import Logout from './componentes/Logout'
 import * as serviceWorker from './serviceWorker';
 import { Router, Route, browserHistory } from 'react-router';
 
@@ -18,8 +19,9 @@ function checkAuthentication(nextState, replace) {
 ReactDOM.render(
     (
         <Router history={browserHistory}>
-            <Route path="/" component={Login}/>
-            <Route path="/timeline" component={App} onEnter={checkAuthentication}/>
+            <Route path="/" component={Login} />
+            <Route path="/timeline" component={App} onEnter={checkAuthentication} />
+            <Route path="/logout" component={Logout} />
         </Router>
     )
     , document.getElementById('root')
