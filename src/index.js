@@ -9,11 +9,17 @@ import './css/reset.css';
 import './css/timeline.css'
 import './css/login.css'
 
+function checkAuthentication(nextState, replace) {
+    if(localStorage.getItem('auth-token') === null) {
+        replace('/?message=você precisa estar logado para acessar o endereço');
+    }
+}
+
 ReactDOM.render(
     (
         <Router history={browserHistory}>
             <Route path="/" component={Login}/>
-            <Route path="/timeline" component={App}/>
+            <Route path="/timeline" component={App} onEnter={checkAuthentication}/>
         </Router>
     )
     , document.getElementById('root')
