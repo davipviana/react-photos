@@ -4,7 +4,7 @@ export default class Login extends Component {
     render = () => {
         return (
             <div className="login-box">
-                <h1 className="header-logo">Instareact</h1>
+                <h1 className="header-logo">ReactPhotos</h1>
                 <form>
                     <input type="text" />
                     <input type="password" />

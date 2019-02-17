@@ -6,7 +6,7 @@ export default class Header extends Component {
     return (
         <div>
             <header className="header container">
-                <h1 className="header-logo">Instalura</h1>
+                <h1 className="header-logo">ReactPhotos</h1>
 
                 <form lpformnum="1" className="header-busca">
                 <input type="text" name="search" placeholder="Pesquisa" className="header-busca-campo"/>
