@@ -5,6 +5,7 @@ import * as serviceWorker from './serviceWorker';
 
 import './css/reset.css';
 import './css/timeline.css'
+import './css/login.css'
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
