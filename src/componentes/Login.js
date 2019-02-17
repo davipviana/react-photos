@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { browserHistory } from 'react-router';
 
 export default class Login extends Component {
     constructor(props) {
@@ -35,11 +36,12 @@ export default class Login extends Component {
                 if(response.ok)
                     return response.text();
                 else
-                    this.setState({message:'Não foi possível fazer login'})
+                    throw new Error('Não foi possível fazer login');
             })
             .then(token => {
-                console.log(token);
+                localStorage.setItem('auth-token', token);
+                browserHistory.push('/timeline');
             })
-            
+            .catch(error => this.setState({ message: error.message }))
     }
 }
