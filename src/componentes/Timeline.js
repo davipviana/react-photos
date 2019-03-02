@@ -29,7 +29,8 @@ export default class Timeline extends Component {
 
         PubSub.subscribe("update-liker", (topic, likerInfo) => {
             const photo = this.state.photos.find(photo => photo.id === likerInfo.photoId);
-            
+            photo.likeada = !photo.likeada;
+
             const liker = photo.likers.find(liker => liker.login === likerInfo.liker.login);
             
             if(liker === undefined) {

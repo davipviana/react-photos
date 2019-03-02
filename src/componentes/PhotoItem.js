@@ -3,16 +3,8 @@ import {Link} from 'react-router';
 
 class PhotoUpdates extends Component {
 
-    constructor(props) {
-        super(props);
-
-        this.state = { liked: this.props.photo.likeada }
-    }
-
     likePhoto = (event) => {
         event.preventDefault();
-
-        this.setState({liked: !this.state.liked});
         this.props.likePhoto(this.props.photo.id);
     }
 
@@ -26,7 +18,7 @@ class PhotoUpdates extends Component {
     render = () => {
         return (
             <section className="fotoAtualizacoes">
-                <Link onClick={this.likePhoto.bind(this)} className={this.state.liked ? "fotoAtualizacoes-like-ativo" : "fotoAtualizacoes-like"}>Likar</Link>
+                <Link onClick={this.likePhoto.bind(this)} className={this.props.photo.likeada ? "fotoAtualizacoes-like-ativo" : "fotoAtualizacoes-like"}>Likar</Link>
                 <form className="fotoAtualizacoes-form" onSubmit={this.commentPhoto.bind(this)}>
                     <input type="text" placeholder="Adicione um comentário..." className="fotoAtualizacoes-form-campo" ref={input=> this.commentInput = input}/>
                     <input type="submit" value="Comentar!" className="fotoAtualizacoes-form-submit" />
