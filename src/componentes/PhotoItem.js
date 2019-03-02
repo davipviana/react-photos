@@ -17,34 +17,18 @@ class PhotoUpdates extends Component {
         this.props.likePhoto(this.props.photo.id);
     }
 
-    addComment = (event) => {
+    commentPhoto = (event) => {
         event.preventDefault();
-        const requestInfo = {
-            method: "POST",
-            body: JSON.stringify({texto: this.commentInput.value}),
-            headers: new Headers({
-                'Content-type':'application/json'
-            })
-        };
-        fetch(`http://localhost:8080/api/fotos/${this.props.photo.id}/comment?X-AUTH-TOKEN=${localStorage.getItem("auth-token")}`, requestInfo)
-            .then(response => {
-                if(response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error("não foi possível comentar");
-                }
-            })
-            .then(newComment => {
-                this.commentInput.value='';
-                PubSub.publish('new-comments',{photoId:this.props.photo.id, newComment});
-            });
+        
+        this.props.commentPhoto(this.props.photo.id, this.commentInput.value);
+        this.commentInput.value='';
     }
 
     render = () => {
         return (
             <section className="fotoAtualizacoes">
                 <Link onClick={this.likePhoto.bind(this)} className={this.state.liked ? "fotoAtualizacoes-like-ativo" : "fotoAtualizacoes-like"}>Likar</Link>
-                <form className="fotoAtualizacoes-form" onSubmit={this.addComment.bind(this)}>
+                <form className="fotoAtualizacoes-form" onSubmit={this.commentPhoto.bind(this)}>
                     <input type="text" placeholder="Adicione um comentário..." className="fotoAtualizacoes-form-campo" ref={input=> this.commentInput = input}/>
                     <input type="submit" value="Comentar!" className="fotoAtualizacoes-form-submit" />
                 </form>
@@ -145,7 +129,7 @@ export default class PhotoItem extends Component {
                 <PhotoHeader photo={this.props.photo}/>
                 <img alt="foto" className="foto-src" src={this.props.photo.urlFoto} />
                 <PhotoInfo photo={this.props.photo} />
-                <PhotoUpdates photo={this.props.photo} likePhoto={this.props.likePhoto}/>
+                <PhotoUpdates photo={this.props.photo} likePhoto={this.props.likePhoto} commentPhoto={this.props.commentPhoto}/>
             </div>
         );
     }

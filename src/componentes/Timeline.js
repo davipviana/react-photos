@@ -54,12 +54,33 @@ export default class Timeline extends Component {
                 PubSub.publish("update-liker", {photoId, liker});
             });
     }
+
+    commentPhoto = (photoId, comment) => {
+        const requestInfo = {
+            method: "POST",
+            body: JSON.stringify({texto: comment}),
+            headers: new Headers({
+                'Content-type':'application/json'
+            })
+        };
+        fetch(`http://localhost:8080/api/fotos/${photoId}/comment?X-AUTH-TOKEN=${localStorage.getItem("auth-token")}`, requestInfo)
+            .then(response => {
+                if(response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("não foi possível comentar");
+                }
+            })
+            .then(newComment => {
+                PubSub.publish('new-comments',{photoId, newComment});
+            });
+    }
  
     render = () => {
         return (
             <div className="fotos container">
             {
-                this.state.photos.map(photo => <PhotoItem photo={photo} key={photo.id} likePhoto={this.likePhoto}/>)
+                this.state.photos.map(photo => <PhotoItem photo={photo} key={photo.id} likePhoto={this.likePhoto} commentPhoto={this.commentPhoto}/>)
             }
             </div>
         );
