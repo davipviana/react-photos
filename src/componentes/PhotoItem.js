@@ -27,12 +27,35 @@ class PhotoUpdates extends Component {
             });
     }
 
+    addComment = (event) => {
+        event.preventDefault();
+        const requestInfo = {
+            method: "POST",
+            body: JSON.stringify({texto: this.commentInput.value}),
+            headers: new Headers({
+                'Content-type':'application/json'
+            })
+        };
+        fetch(`http://localhost:8080/api/fotos/${this.props.photo.id}/comment?X-AUTH-TOKEN=${localStorage.getItem("auth-token")}`, requestInfo)
+            .then(response => {
+                if(response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("não foi possível comentar");
+                }
+            })
+            .then(newComment => {
+                this.commentInput.value='';
+                PubSub.publish('new-comments',{photoId:this.props.photo.id, newComment});
+            });
+    }
+
     render = () => {
         return (
             <section className="fotoAtualizacoes">
                 <Link onClick={this.likePhoto.bind(this)} className={this.state.liked ? "fotoAtualizacoes-like-ativo" : "fotoAtualizacoes-like"}>Likar</Link>
-                <form className="fotoAtualizacoes-form">
-                    <input type="text" placeholder="Adicione um comentário..." className="fotoAtualizacoes-form-campo" />
+                <form className="fotoAtualizacoes-form" onSubmit={this.addComment.bind(this)}>
+                    <input type="text" placeholder="Adicione um comentário..." className="fotoAtualizacoes-form-campo" ref={input=> this.commentInput = input}/>
                     <input type="submit" value="Comentar!" className="fotoAtualizacoes-form-submit" />
                 </form>
 
@@ -46,7 +69,7 @@ class PhotoInfo extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {likers: this.props.photo.likers};
+        this.state = {likers: this.props.photo.likers, comments: this.props.photo.comentarios};
     }
 
     componentWillMount = () => {
@@ -61,6 +84,13 @@ class PhotoInfo extends Component {
                     const newLikers = this.state.likers.filter(liker => liker.login !== likerInfo.liker.login);
                     this.setState({likers: newLikers});
                 }
+            }
+        });
+
+        PubSub.subscribe("new-comments", (topic, newCommentInfo) => {
+            if(newCommentInfo.photoId === this.props.photo.id) {
+                const newComments = this.state.comments.concat(newCommentInfo.newComment);
+                this.setState({comments: newComments});
             }
         });
     }
@@ -85,7 +115,7 @@ class PhotoInfo extends Component {
 
                 <ul className="foto-info-comentarios">
                     {
-                        this.props.photo.comentarios.map(comment => {
+                        this.state.comments.map(comment => {
                             return (
                                 <li className="comentario" key={comment.id}>
                                 <Link to={`/timeline/${comment.login}`} className="foto-info-autor">{comment.login}</Link>
