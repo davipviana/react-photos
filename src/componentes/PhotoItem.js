@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {Link} from 'react-router';
-import PubSub from 'pubsub-js';
 
 class PhotoUpdates extends Component {
 
@@ -39,43 +38,13 @@ class PhotoUpdates extends Component {
 }
 
 class PhotoInfo extends Component {
-
-    constructor(props) {
-        super(props);
-
-        this.state = {likers: this.props.photo.likers, comments: this.props.photo.comentarios};
-    }
-
-    componentWillMount = () => {
-        PubSub.subscribe("update-liker", (topic, likerInfo) => {
-            if(likerInfo.photoId === this.props.photo.id) {
-                const liker = this.state.likers.find(liker => liker.login === likerInfo.liker.login);
-                
-                if(liker === undefined) {
-                    const newLikers = this.state.likers.concat(likerInfo.liker);
-                    this.setState({likers: newLikers});
-                } else {
-                    const newLikers = this.state.likers.filter(liker => liker.login !== likerInfo.liker.login);
-                    this.setState({likers: newLikers});
-                }
-            }
-        });
-
-        PubSub.subscribe("new-comments", (topic, newCommentInfo) => {
-            if(newCommentInfo.photoId === this.props.photo.id) {
-                const newComments = this.state.comments.concat(newCommentInfo.newComment);
-                this.setState({comments: newComments});
-            }
-        });
-    }
-
     render = () => {
         return (
             
             <div className="foto-info">
                 <div className="foto-info-likes">
                     {
-                        this.state.likers.map(liker => {
+                        this.props.photo.likers.map(liker => {
                             return (<Link key={liker.login} to={`/timeline/${liker.login}`}>{liker.login}</Link>);
                         })
                     }
@@ -89,7 +58,7 @@ class PhotoInfo extends Component {
 
                 <ul className="foto-info-comentarios">
                     {
-                        this.state.comments.map(comment => {
+                        this.props.photo.comentarios.map(comment => {
                             return (
                                 <li className="comentario" key={comment.id}>
                                 <Link to={`/timeline/${comment.login}`} className="foto-info-autor">{comment.login}</Link>
@@ -129,7 +98,7 @@ export default class PhotoItem extends Component {
                 <PhotoHeader photo={this.props.photo}/>
                 <img alt="foto" className="foto-src" src={this.props.photo.urlFoto} />
                 <PhotoInfo photo={this.props.photo} />
-                <PhotoUpdates photo={this.props.photo} likePhoto={this.props.likePhoto} commentPhoto={this.props.commentPhoto}/>
+                <PhotoUpdates {...this.props}/>
             </div>
         );
     }
