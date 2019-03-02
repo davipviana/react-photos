@@ -12,6 +12,16 @@ export default class Timeline extends Component {
         };
     }
 
+    componentDidMount = () => {
+        this.loadPhotos(this.props);
+    }
+
+    componentWillReceiveProps = (nextProps) => {
+        if(nextProps.login !== undefined) {
+            this.loadPhotos(nextProps);
+        }
+    }
+
     componentWillMount = () => {
         PubSub.subscribe('timeline', (topic, photos) => {
             this.setState({photos: photos});
@@ -30,22 +40,26 @@ export default class Timeline extends Component {
             .then(response => response.json())
             .then(photos => this.setState({ photos: photos }))
     }
-
-    componentDidMount = () => {
-        this.loadPhotos(this.props);
-    }
-
-    componentWillReceiveProps = (nextProps) => {
-        if(nextProps.login !== undefined) {
-            this.loadPhotos(nextProps);
-        }
+    
+    likePhoto = (photoId) => {
+        fetch(`http://localhost:8080/api/fotos/${photoId}/like?X-AUTH-TOKEN=${localStorage.getItem('auth-token')}`, { method: 'POST' })
+            .then(response => {
+                if(response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('não foi possível realizar o like da foto');
+                }
+            })
+            .then(liker => {
+                PubSub.publish("update-liker", {photoId, liker});
+            });
     }
  
     render = () => {
         return (
             <div className="fotos container">
             {
-                this.state.photos.map(photo => <PhotoItem photo={photo} key={photo.id}/>)
+                this.state.photos.map(photo => <PhotoItem photo={photo} key={photo.id} likePhoto={this.likePhoto}/>)
             }
             </div>
         );

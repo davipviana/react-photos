@@ -13,18 +13,8 @@ class PhotoUpdates extends Component {
     likePhoto = (event) => {
         event.preventDefault();
 
-        fetch(`http://localhost:8080/api/fotos/${this.props.photo.id}/like?X-AUTH-TOKEN=${localStorage.getItem('auth-token')}`, { method: 'POST' })
-            .then(response => {
-                if(response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('não foi possível realizar o like da foto');
-                }
-            })
-            .then(liker => {
-                this.setState({liked: !this.state.liked});
-                PubSub.publish("update-liker", {photoId:this.props.photo.id, liker});
-            });
+        this.setState({liked: !this.state.liked});
+        this.props.likePhoto(this.props.photo.id);
     }
 
     addComment = (event) => {
@@ -155,7 +145,7 @@ export default class PhotoItem extends Component {
                 <PhotoHeader photo={this.props.photo}/>
                 <img alt="foto" className="foto-src" src={this.props.photo.urlFoto} />
                 <PhotoInfo photo={this.props.photo} />
-                <PhotoUpdates photo={this.props.photo} />
+                <PhotoUpdates photo={this.props.photo} likePhoto={this.props.likePhoto}/>
             </div>
         );
     }
