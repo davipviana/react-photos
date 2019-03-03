@@ -1,29 +1,46 @@
-export function timeline(state = [], action) {
+import {List} from 'immutable';
+
+function updatePhoto(photoList, photoId, getNewProperties) {
+    const photo = photoList.find(photo => photo.id === photoId);
+    
+    const newProperties = getNewProperties(photo);
+
+    const newPhoto = Object.assign({}, photo, newProperties);
+    const index = photoList.findIndex(photo => photo.id === photoId);
+    
+    return photoList.set(index, newPhoto);
+}
+
+export function timeline(state = new List(), action) {
     if(action.type === 'LIST') {
-        return action.photos;
+        return new List(action.photos);
     }
 
     if(action.type === 'COMMENT') {
         const {photoId, newComment} = action;
-        const photo = state.find(photo => photo.id === photoId);
-        photo.comentarios.push(newComment);
-        return state;
+        
+        return updatePhoto(state, photoId, photo => {
+            const newComments = photo.comentarios.concat(newComment);
+            return {comentarios:newComments}
+        })
     }
 
     if(action.type === 'LIKE') {
         const {photoId, liker} = action;
-        const photo = state.find(photo => photo.id === photoId);
-        photo.likeada = !photo.likeada;
 
-        const possibleLiker = photo.likers.find(currentLiker => currentLiker.login === liker.login);
+        return updatePhoto(state, photoId, photo => {
+            const newLikeada = !photo.likeada;
+
+            const possibleLiker = photo.likers.find(currentLiker => currentLiker.login === liker.login);
         
-        if(possibleLiker === undefined) {
-            photo.likers.push(liker);
-        } else {
-            const newLikers = photo.likers.filter(currentLiker => currentLiker.login !== liker.login);
-            photo.likers = newLikers;
-        }
-        return state;
+            let newLikers;
+            if(possibleLiker === undefined)
+                newLikers = photo.likers.concat(liker);
+            else
+                newLikers = photo.likers.filter(currentLiker => currentLiker.login !== liker.login);
+
+            return {likers: newLikers, likeada: newLikeada}
+        });
     }
 
     return state;
