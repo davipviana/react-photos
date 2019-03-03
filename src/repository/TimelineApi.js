@@ -1,10 +1,4 @@
-import PubSub from 'pubsub-js';
-
 export default class TimelineApi {
-    constructor(photos) {
-        this.photos = photos;
-    }
-
     static loadPhotos = (url) => {
         return dispatch => {
             fetch(url)
@@ -16,8 +10,9 @@ export default class TimelineApi {
         }
     }
 
-    likePhoto = (photoId) => {
-        fetch(`http://localhost:8080/api/fotos/${photoId}/like?X-AUTH-TOKEN=${localStorage.getItem('auth-token')}`, { method: 'POST' })
+    static likePhoto = (photoId) => {
+        return dispatch => {
+            fetch(`http://localhost:8080/api/fotos/${photoId}/like?X-AUTH-TOKEN=${localStorage.getItem('auth-token')}`, { method: 'POST' })
             .then(response => {
                 if(response.ok) {
                     return response.json();
@@ -26,47 +21,33 @@ export default class TimelineApi {
                 }
             })
             .then(liker => {
-                const photo = this.photos.find(photo => photo.id === photoId);
-                photo.likeada = !photo.likeada;
-
-                const possibleLiker = photo.likers.find(currentLiker => currentLiker.login === liker.login);
-                
-                if(possibleLiker === undefined) {
-                    photo.likers.push(liker);
-                } else {
-                    const newLikers = photo.likers.filter(currentLiker => currentLiker.login !== liker.login);
-                    photo.likers = newLikers;
-                }
-                PubSub.publish('timeline', this.photos);
+                dispatch({type: 'LIKE', photoId, liker});
+                return liker;
             });
+        }
     }
 
-    commentPhoto = (photoId, comment) => {
-        const requestInfo = {
-            method: "POST",
-            body: JSON.stringify({texto: comment}),
-            headers: new Headers({
-                'Content-type':'application/json'
-            })
-        };
-        fetch(`http://localhost:8080/api/fotos/${photoId}/comment?X-AUTH-TOKEN=${localStorage.getItem("auth-token")}`, requestInfo)
-            .then(response => {
-                if(response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error("não foi possível comentar");
-                }
-            })
-            .then(newComment => {
-                const photo = this.photos.find(photo => photo.id === photoId);
-                photo.comentarios.push(newComment);
-                PubSub.publish('timeline', this.photos);
-            });
-    }
-
-    subscribe = (callback) => {
-        PubSub.subscribe('timeline', (topic, photos) => {
-            callback(photos);
-        })
+    static commentPhoto = (photoId, comment) => {
+        return dispatch => {
+            const requestInfo = {
+                method: "POST",
+                body: JSON.stringify({texto: comment}),
+                headers: new Headers({
+                    'Content-type':'application/json'
+                })
+            };
+            fetch(`http://localhost:8080/api/fotos/${photoId}/comment?X-AUTH-TOKEN=${localStorage.getItem("auth-token")}`, requestInfo)
+                .then(response => {
+                    if(response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error("não foi possível comentar");
+                    }
+                })
+                .then(newComment => {
+                    dispatch({type:'COMMENT', photoId, newComment});
+                    return newComment;
+                });
+        }
     }
 }
