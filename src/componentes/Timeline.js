@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import PhotoItem from './PhotoItem';
-
-import TimelineBusiness from '../business/TimelineBusiness';
-
 export default class Timeline extends Component {
 
     constructor(props) {
@@ -10,7 +7,6 @@ export default class Timeline extends Component {
         this.state = {
             photos: []
         };
-        this.timelineBusiness = new TimelineBusiness([]);
     }
 
     componentDidMount = () => {
@@ -24,7 +20,7 @@ export default class Timeline extends Component {
     }
 
     componentWillMount = () => {
-        this.timelineBusiness.subscribe(photos => {
+        this.props.store.subscribe(photos => {
             this.setState({photos});
         })
     }
@@ -37,15 +33,15 @@ export default class Timeline extends Component {
         else
             url = `http://localhost:8080/api/public/fotos/${props.login}`;
 
-        this.timelineBusiness.loadPhotos(url);
+        this.props.store.loadPhotos(url);
     }
     
     likePhoto = (photoId) => {
-        this.timelineBusiness.likePhoto(photoId);
+        this.props.store.likePhoto(photoId);
     }
 
     commentPhoto = (photoId, comment) => {
-        this.timelineBusiness.commentPhoto(photoId, comment);
+        this.props.store.commentPhoto(photoId, comment);
     }
  
     render = () => {

@@ -1,6 +1,6 @@
 import PubSub from 'pubsub-js';
 
-export default class TimelineBusiness {
+export default class TimelineStore {
     constructor(photos) {
         this.photos = photos;
     }
