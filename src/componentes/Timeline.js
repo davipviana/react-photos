@@ -3,6 +3,8 @@ import PhotoItem from './PhotoItem';
 
 import PubSub from 'pubsub-js';
 
+import TimelineBusiness from '../business/TimelineBusiness';
+
 export default class Timeline extends Component {
 
     constructor(props) {
@@ -10,6 +12,7 @@ export default class Timeline extends Component {
         this.state = {
             photos: []
         };
+        this.timelineBusiness = new TimelineBusiness([]);
     }
 
     componentDidMount = () => {
@@ -25,21 +28,6 @@ export default class Timeline extends Component {
     componentWillMount = () => {
         PubSub.subscribe('timeline', (topic, photos) => {
             this.setState({photos: photos});
-        });
-
-        PubSub.subscribe("update-liker", (topic, likerInfo) => {
-            const photo = this.state.photos.find(photo => photo.id === likerInfo.photoId);
-            photo.likeada = !photo.likeada;
-
-            const liker = photo.likers.find(liker => liker.login === likerInfo.liker.login);
-            
-            if(liker === undefined) {
-                photo.likers.push(likerInfo.liker);
-            } else {
-                const newLikers = photo.likers.filter(liker => liker.login !== likerInfo.liker.login);
-                photo.likers = newLikers;
-            }
-            this.setState({photos: this.state.photos});
         });
 
         PubSub.subscribe("new-comments", (topic, newCommentInfo) => {
@@ -60,21 +48,14 @@ export default class Timeline extends Component {
 
         fetch(url)
             .then(response => response.json())
-            .then(photos => this.setState({ photos: photos }))
+            .then(photos => {
+                this.setState({ photos: photos })
+                this.timelineBusiness = new TimelineBusiness(photos);
+            })
     }
     
     likePhoto = (photoId) => {
-        fetch(`http://localhost:8080/api/fotos/${photoId}/like?X-AUTH-TOKEN=${localStorage.getItem('auth-token')}`, { method: 'POST' })
-            .then(response => {
-                if(response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('não foi possível realizar o like da foto');
-                }
-            })
-            .then(liker => {
-                PubSub.publish("update-liker", {photoId, liker});
-            });
+        this.timelineBusiness.likePhoto(photoId);
     }
 
     commentPhoto = (photoId, comment) => {
