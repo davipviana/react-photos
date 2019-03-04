@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PubSub from 'pubsub-js';
+import TimelineApi from '../repository/TimelineApi';
 
 export default class Header extends Component {
 
@@ -9,11 +9,7 @@ export default class Header extends Component {
         if(this.searchInput.value === "")
             return;
 
-        fetch(`http://localhost:8080/api/public/fotos/${this.searchInput.value}`)
-            .then(response => response.json())
-            .then(photos => {
-                PubSub.publish('timeline',photos);
-            })
+        this.props.store.dispatch(TimelineApi.search(this.searchInput.value));
     }
 
     render = () => {

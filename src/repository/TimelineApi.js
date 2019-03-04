@@ -52,4 +52,15 @@ export default class TimelineApi {
                 });
         }
     }
+
+    static search(login) {
+        return dispatch => {
+            fetch(`http://localhost:8080/api/public/fotos/${login}`)
+            .then(response => response.json())
+            .then(photos => {
+                dispatch(actionList(photos));
+                return photos;
+            })
+        }
+    }
 }
