@@ -1,4 +1,4 @@
-import {actionList, actionLike, actionComment} from '../actions/actionCreator';
+import {actionList, actionLike, actionComment, actionAlert} from '../actions/actionCreator';
 
 export default class TimelineApi {
     static loadPhotos = (url) => {
@@ -58,6 +58,12 @@ export default class TimelineApi {
             fetch(`http://localhost:8080/api/public/fotos/${login}`)
             .then(response => response.json())
             .then(photos => {
+                if(photos.length === 0) {
+                    dispatch(actionAlert('usuário não encontrado'));
+                } else {
+                    dispatch(actionAlert(''));
+                }
+
                 dispatch(actionList(photos));
                 return photos;
             })

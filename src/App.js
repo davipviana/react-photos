@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
-import {createStore, applyMiddleware} from 'redux';
+import {createStore, applyMiddleware, combineReducers} from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import Header from './componentes/Header';
 import Timeline from './componentes/Timeline';
 
 import {timeline} from './reducers/timeline';
+import {notification} from './reducers/header';
 
-const store = createStore(timeline, applyMiddleware(thunkMiddleware));
+const reducers = combineReducers({timeline, notification});
+const store = createStore(reducers, applyMiddleware(thunkMiddleware));
+
 
 class App extends Component {
   render() {

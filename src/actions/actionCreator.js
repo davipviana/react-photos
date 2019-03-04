@@ -9,3 +9,7 @@ export function actionLike(photoId, liker) {
 export function actionComment(photoId, newComment) {
     return {type:'COMMENT', photoId, newComment};
 }
+
+export function actionAlert(msg) {
+    return {type:'ALERT', msg};
+}
