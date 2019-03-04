@@ -1,10 +1,12 @@
+import {actionList, actionLike, actionComment} from '../actions/actionCreator';
+
 export default class TimelineApi {
     static loadPhotos = (url) => {
         return dispatch => {
             fetch(url)
                 .then(response => response.json())
                 .then(photos => {
-                    dispatch({type: 'LIST', photos});
+                    dispatch(actionList(photos));
                     return photos;
                 })
         }
@@ -21,7 +23,7 @@ export default class TimelineApi {
                 }
             })
             .then(liker => {
-                dispatch({type: 'LIKE', photoId, liker});
+                dispatch(actionLike(photoId, liker));
                 return liker;
             });
         }
@@ -45,7 +47,7 @@ export default class TimelineApi {
                     }
                 })
                 .then(newComment => {
-                    dispatch({type:'COMMENT', photoId, newComment});
+                    dispatch(actionComment(photoId, newComment));
                     return newComment;
                 });
         }
